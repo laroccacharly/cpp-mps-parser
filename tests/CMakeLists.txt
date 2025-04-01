@@ -1,16 +1,21 @@
-# Add the test executable
-add_executable(run_tests 
-    test_eigen.cpp
+find_package(GTest REQUIRED)
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+
+# Add test executable
+add_executable(mps_tests
     test_mps.cpp
+    test_eigen.cpp
 )
 
-# Link against GoogleTest, Eigen, and our MPS library
-target_link_libraries(run_tests PRIVATE 
-    GTest::gtest_main 
+# Link against Google Test and our library
+target_link_libraries(mps_tests
+    PRIVATE
+    GTest::GTest
+    GTest::Main
+    mps_parser
     Eigen3::Eigen
-    mps_lib
 )
 
-# Include GoogleTest in the test run
-include(GoogleTest)
-gtest_discover_tests(run_tests) 
+# Enable testing
+enable_testing()
+add_test(NAME mps_tests COMMAND mps_tests) 
