@@ -1,0 +1,3 @@
+
+MPS file parser in C++ using Eigen for sparse matrix operations.
+Look at commands in env.sh to see how to build and test.
