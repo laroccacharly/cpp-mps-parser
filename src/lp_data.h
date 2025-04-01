@@ -17,7 +17,8 @@ public:
            const Eigen::SparseMatrix<double>& A_ineq,
            const Eigen::VectorXd& b_ineq,
            double obj_offset,
-           const std::vector<std::string>& col_names);
+           const std::vector<std::string>& col_names,
+           double parse_time_seconds = 0.0);
 
     // Getters
     int get_n_vars() const { return n_vars_; }
@@ -30,6 +31,7 @@ public:
     const Eigen::VectorXd& get_b_ineq() const { return b_ineq_; }
     double get_obj_offset() const { return obj_offset_; }
     const std::vector<std::string>& get_col_names() const { return col_names_; }
+    double get_parse_time_seconds() const { return parse_time_seconds_; }
 
 private:
     int n_vars_;
@@ -41,6 +43,7 @@ private:
     Eigen::VectorXd b_ineq_;         // Inequality constraints RHS
     double obj_offset_;              // Objective function offset
     std::vector<std::string> col_names_;  // Variable names
+    double parse_time_seconds_;      // Added parse time member
 };
 
 } // namespace mps

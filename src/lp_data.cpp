@@ -10,7 +10,8 @@ LpData::LpData(int n_vars,
                const Eigen::SparseMatrix<double>& A_ineq,
                const Eigen::VectorXd& b_ineq,
                double obj_offset,
-               const std::vector<std::string>& col_names)
+               const std::vector<std::string>& col_names,
+               double parse_time_seconds)
     : n_vars_(n_vars)
     , c_(c)
     , lb_(bounds.first)
@@ -20,7 +21,8 @@ LpData::LpData(int n_vars,
     , A_ineq_(A_ineq)
     , b_ineq_(b_ineq)
     , obj_offset_(obj_offset)
-    , col_names_(col_names) {
+    , col_names_(col_names)
+    , parse_time_seconds_(parse_time_seconds) {
 }
 
 } // namespace mps 

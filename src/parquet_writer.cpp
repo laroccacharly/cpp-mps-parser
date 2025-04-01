@@ -177,22 +177,23 @@ std::tuple<std::string, double> save_lp_to_parquet(const LpData& lp_data,
 
     // Calculate save time
     auto end_time = std::chrono::high_resolution_clock::now();
-    double save_time = std::chrono::duration<double>(end_time - start_time).count();
+    double save_parquet_time = std::chrono::duration<double>(end_time - start_time).count();
 
-    std::cout << "Finished saving to Parquet in " << save_time << " seconds" << std::endl;
+    std::cout << "Finished saving to Parquet in " << save_parquet_time << " seconds" << std::endl;
 
     // Save metadata
     json metadata = {
         {"n_vars", lp_data.get_n_vars()},
         {"obj_offset", lp_data.get_obj_offset()},
-        {"save_time_seconds", save_time}
+        {"parse_time_seconds", lp_data.get_parse_time_seconds()},
+        {"save_parquet_time_seconds", save_parquet_time}
     };
 
     std::ofstream metadata_file(output_dir / "metadata.json");
     metadata_file << metadata.dump(4);
     metadata_file.close();
 
-    return {output_dir.string(), save_time};
+    return {output_dir.string(), save_parquet_time};
 }
 
 } // namespace mps 

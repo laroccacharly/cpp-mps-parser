@@ -21,4 +21,10 @@ target_link_libraries(mps_parser
         Parquet::parquet_shared
         nlohmann_json::nlohmann_json
 )
-target_include_directories(mps_parser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}) 
+target_include_directories(mps_parser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Add the executable for parsing and saving
+add_executable(parse_and_save parse_and_save.cpp)
+
+# Link the executable against the mps_parser library and its dependencies
+target_link_libraries(parse_and_save PRIVATE mps_parser) 
