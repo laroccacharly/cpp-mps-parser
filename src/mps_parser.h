@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <memory>
 #include <chrono>
 
@@ -49,12 +50,13 @@ public:
 private:
     std::vector<std::string> row_names_;
     std::vector<std::string> col_names_;
+    std::unordered_map<std::string, int> col_name_to_index_; // Map column name to its index
     std::string objective_name_;
-    std::map<std::string, std::map<std::string, double>> constraints_;  // row -> (col -> value)
-    std::map<std::string, double> objective_;  // col -> value
-    std::map<std::string, double> rhs_values_;  // row -> value
-    std::map<std::string, std::pair<double, double>> bounds_;  // col -> (lower, upper)
-    std::map<std::string, char> row_types_;  // row -> type (N, E, L, G)
+    std::unordered_map<std::string, std::unordered_map<std::string, double>> constraints_;  // row -> (col -> value)
+    std::unordered_map<std::string, double> objective_;  // col -> value
+    std::unordered_map<std::string, double> rhs_values_;  // row -> value
+    std::unordered_map<std::string, std::pair<double, double>> bounds_;  // col -> (lower, upper)
+    std::unordered_map<std::string, char> row_types_;  // row -> type (N, E, L, G)
 };
 
 // Section parsing functions

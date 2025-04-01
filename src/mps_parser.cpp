@@ -21,8 +21,11 @@ void ParserState::add_row(const std::string& name, char type) {
 }
 
 void ParserState::add_column_coefficient(const std::string& col_name, const std::string& row_name, double value) {
-    if (std::find(col_names_.begin(), col_names_.end(), col_name) == col_names_.end()) {
+    // Check if column is new and add it to names and index map
+    if (col_name_to_index_.find(col_name) == col_name_to_index_.end()) {
+        int new_index = col_names_.size();
         col_names_.push_back(col_name);
+        col_name_to_index_[col_name] = new_index;
     }
 
     if (row_name == objective_name_) {
@@ -114,9 +117,10 @@ void ParserState::build_matrices(int& n_vars,
 
     // Fill objective coefficients
     for (const auto& [col, value] : objective_) {
-        auto it = std::find(col_names_.begin(), col_names_.end(), col);
-        if (it != col_names_.end()) {
-            c(std::distance(col_names_.begin(), it)) = value;
+        // Use map for O(1) lookup
+        auto it = col_name_to_index_.find(col);
+        if (it != col_name_to_index_.end()) {
+            c(it->second) = value;
         }
     }
 
@@ -131,9 +135,10 @@ void ParserState::build_matrices(int& n_vars,
 
             if (constraints_.count(row)) {
                 for (const auto& [col, value] : constraints_.at(row)) {
-                    auto it = std::find(col_names_.begin(), col_names_.end(), col);
-                    if (it != col_names_.end()) {
-                        eq_triplets.emplace_back(i, std::distance(col_names_.begin(), it), value);
+                    // Use map for O(1) lookup
+                    auto it = col_name_to_index_.find(col);
+                    if (it != col_name_to_index_.end()) {
+                        eq_triplets.emplace_back(i, it->second, value);
                     }
                 }
             }
@@ -156,9 +161,10 @@ void ParserState::build_matrices(int& n_vars,
 
             if (constraints_.count(row)) {
                 for (const auto& [col, value] : constraints_.at(row)) {
-                    auto it = std::find(col_names_.begin(), col_names_.end(), col);
-                    if (it != col_names_.end()) {
-                        ineq_triplets.emplace_back(ineq_idx, std::distance(col_names_.begin(), it), value);
+                    // Use map for O(1) lookup
+                    auto it = col_name_to_index_.find(col);
+                    if (it != col_name_to_index_.end()) {
+                        ineq_triplets.emplace_back(ineq_idx, it->second, value);
                     }
                 }
             }
@@ -172,9 +178,10 @@ void ParserState::build_matrices(int& n_vars,
 
             if (constraints_.count(row)) {
                 for (const auto& [col, value] : constraints_.at(row)) {
-                    auto it = std::find(col_names_.begin(), col_names_.end(), col);
-                    if (it != col_names_.end()) {
-                        ineq_triplets.emplace_back(ineq_idx, std::distance(col_names_.begin(), it), -value);
+                    // Use map for O(1) lookup
+                    auto it = col_name_to_index_.find(col);
+                    if (it != col_name_to_index_.end()) {
+                        ineq_triplets.emplace_back(ineq_idx, it->second, -value);
                     }
                 }
             }
@@ -305,16 +312,23 @@ std::unique_ptr<LpData> parse_mps(const std::string& path) {
 
         file.close();
 
-        std::cout << "Finished reading MPS sections in " 
-                  << std::chrono::duration_cast<std::chrono::milliseconds>(
-                         std::chrono::steady_clock::now() - start_time).count() / 1000.0 
-                  << " seconds" << std::endl;
+        const auto end_read_time = std::chrono::steady_clock::now(); // Time after reading file
+        const double read_duration_sec = std::chrono::duration_cast<std::chrono::milliseconds>(end_read_time - start_time).count() / 1000.0;
+        std::cout << "Finished reading MPS sections in " << read_duration_sec << " seconds" << std::endl;
 
         // Post-processing and matrix construction
+        const auto start_post_proc_time = std::chrono::steady_clock::now();
         state.set_default_bounds();
         bounds = state.create_bounds();
+        const auto end_post_proc_time = std::chrono::steady_clock::now();
+        const double post_proc_duration_sec = std::chrono::duration_cast<std::chrono::microseconds>(end_post_proc_time - start_post_proc_time).count() / 1e6;
+        std::cout << "Post-processing (bounds) took: " << post_proc_duration_sec << " seconds" << std::endl;
 
+        const auto start_build_matrices_time = std::chrono::steady_clock::now();
         state.build_matrices(n_vars, c, A_eq, b_eq, A_ineq, b_ineq);
+        const auto end_build_matrices_time = std::chrono::steady_clock::now();
+        const double build_matrices_duration_sec = std::chrono::duration_cast<std::chrono::microseconds>(end_build_matrices_time - start_build_matrices_time).count() / 1e6;
+        std::cout << "Building matrices took: " << build_matrices_duration_sec << " seconds" << std::endl;
 
     } catch (const std::exception& e) {
         std::cout << "Error: " << e.what() << std::endl;
