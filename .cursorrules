@@ -1,3 +1,6 @@
 
 MPS file parser in C++ using Eigen for sparse matrix operations.
 Look at commands in env.sh to see how to build and test.
+Example MPS files are in mps_files/
+tests are in tests/
+sources are in src/

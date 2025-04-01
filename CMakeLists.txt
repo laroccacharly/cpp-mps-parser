@@ -20,6 +20,9 @@ FetchContent_MakeAvailable(googletest)
 # Enable testing
 enable_testing()
 
+# Add source directory
+add_subdirectory(src)
+
 # Add tests subdirectory
 add_subdirectory(tests)
 
