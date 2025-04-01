@@ -15,6 +15,13 @@ enable_testing()
 # Find Eigen
 find_package(Eigen3 3.3 REQUIRED CONFIG) # Assumes Eigen is installed or discoverable
 
+# Find Arrow and Parquet
+find_package(Arrow REQUIRED)
+find_package(Parquet REQUIRED)
+
+# Find nlohmann_json
+find_package(nlohmann_json REQUIRED)
+
 # Fetch GoogleTest
 include(FetchContent)
 FetchContent_Declare(
