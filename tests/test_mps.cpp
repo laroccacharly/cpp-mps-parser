@@ -109,4 +109,18 @@ TEST_F(MPSParserTest, CheckVariableNames) {
     std::set<std::string> unique_names(col_names.begin(), col_names.end());
     ASSERT_EQ(unique_names.size(), col_names.size())
         << "Variable names are not unique";
+}
+
+TEST_F(MPSParserTest, CheckParseTime) {
+    ASSERT_NE(lp_data, nullptr) << "LpData object is null";
+
+    double parse_time = lp_data->get_parse_time_seconds();
+
+    // Check that parse time is positive and within a reasonable range.
+    ASSERT_GT(parse_time, 0.0)
+        << "Parse time should be positive after parsing.";
+    ASSERT_GE(parse_time, 1e-9)
+        << "Parse time is unexpectedly close to zero."; 
+    ASSERT_LT(parse_time, 10.0)
+        << "Parse time seems excessively long (\"> 10s\")";
 } 

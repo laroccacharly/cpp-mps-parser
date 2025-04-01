@@ -242,6 +242,13 @@ std::unique_ptr<LpData> parse_mps(const std::string& path) {
 
     ParserState state;
     std::string current_section;
+    double parse_time_seconds = 0.0;
+    int n_vars = 0;
+    Eigen::VectorXd c;
+    Eigen::SparseMatrix<double> A_eq, A_ineq;
+    Eigen::VectorXd b_eq, b_ineq;
+    std::pair<Eigen::VectorXd, Eigen::VectorXd> bounds;
+    double obj_offset = 0.0;
 
     try {
         std::ifstream file(path);
@@ -296,6 +303,8 @@ std::unique_ptr<LpData> parse_mps(const std::string& path) {
             }
         }
 
+        file.close();
+
         std::cout << "Finished reading MPS sections in " 
                   << std::chrono::duration_cast<std::chrono::milliseconds>(
                          std::chrono::steady_clock::now() - start_time).count() / 1000.0 
@@ -303,36 +312,22 @@ std::unique_ptr<LpData> parse_mps(const std::string& path) {
 
         // Post-processing and matrix construction
         state.set_default_bounds();
-        auto bounds = state.create_bounds();
-
-        int n_vars;
-        Eigen::VectorXd c;
-        Eigen::SparseMatrix<double> A_eq, A_ineq;
-        Eigen::VectorXd b_eq, b_ineq;
+        bounds = state.create_bounds();
 
         state.build_matrices(n_vars, c, A_eq, b_eq, A_ineq, b_ineq);
-
-        std::cout << "Total parsing time: " 
-                  << std::chrono::duration_cast<std::chrono::milliseconds>(
-                         std::chrono::steady_clock::now() - start_time).count() / 1000.0 
-                  << " seconds" << std::endl;
-
-        return std::make_unique<LpData>(
-            n_vars,
-            c,
-            bounds,
-            A_eq,
-            b_eq,
-            A_ineq,
-            b_ineq,
-            0.0,  // obj_offset
-            state.get_col_names()
-        );
 
     } catch (const std::exception& e) {
         std::cout << "Error: " << e.what() << std::endl;
         throw;
     }
+
+    const auto end_time = std::chrono::steady_clock::now();
+    const auto parse_duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+    parse_time_seconds = parse_duration.count() / 1e6;
+
+    std::cout << "Total parsing time: " << parse_time_seconds << " seconds" << std::endl;
+
+    return std::make_unique<LpData>(n_vars, c, bounds, A_eq, b_eq, A_ineq, b_ineq, obj_offset, state.get_col_names(), parse_time_seconds);
 }
 
 } // namespace mps 
