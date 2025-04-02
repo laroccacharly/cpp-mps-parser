@@ -5,6 +5,8 @@ Convert text-based MPS files into Parquet files in C++.
 Translated from the python version here: 
 https://github.com/laroccacharly/parse-mps-benchmark
 
+[![MPS Parser Video](https://img.youtube.com/vi/TjY1KIOHbO4/0.jpg)](https://youtu.be/TjY1KIOHbO4)
+
 Install dependencies:
 ```bash 
 brew install cmake eigen apache-arrow nlohmann-json python uv
