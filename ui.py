@@ -49,7 +49,7 @@ def load_metadata(data_dir: Path) -> list[dict]:
 
 # --- Streamlit App ---
 
-st.title("MPS File Parse Time Distribution (Excluding Top 40 by Variable Count)")
+st.title("MPS File Parse Time Distribution")
 
 all_metadata = load_metadata(DATA_DIR)
 
@@ -80,7 +80,7 @@ if 'parse_times' in locals() and parse_times:
         df,
         x="Parse Time (seconds)",
         nbins=20, # Adjust number of bins as needed
-        title=f"Distribution of Parse Times (Filtered - Top {NUM_INSTANCES_TO_FILTER} 'n_vars' removed)",
+        title=f"Distribution of Parse Times",
         labels={"Parse Time (seconds)": "Parse Time (seconds)"},
         opacity=0.8,
     )
